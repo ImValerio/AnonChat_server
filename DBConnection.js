@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+mongoose.pluralize(null);
 const db = mongoose.connect(process.env.DB_URL,{useNewUrlParser: true, useUnifiedTopology: true});
 console.log(process.env.DB_URL);
 const { Schema } = mongoose;
