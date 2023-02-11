@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 mongoose.pluralize(null);
 
 require('dotenv').config()
-const {db,chatSchema} = require("./DBConnection");
+const {db,chatSchema} = require("./db/DBConnection");
+const {getMessage, addMessage, removeCollection} = require("./utils")
 
 app.use(morgan("tiny"));
 app.use(cors());
@@ -39,7 +40,6 @@ io.on('connection', (socket) => {
 
     socket.on('message', async ({message,room}) => {
         const messageToSend = {username: socket.id, msg: message}
-        //console.log(messageToSend);
         const roomMessages = await addMessage(room.toString(),messageToSend);
         await socket.to(room).emit("chat-update", roomMessages)
     });
@@ -56,24 +56,3 @@ http.listen(PORT, () => {
     console.log(`Listening on http://localhost:${PORT}`);
 })
 
-const getMessages = async (room)=>{
-    const roomDB = mongoose.model(room.toString(), chatSchema);
-    const data = await roomDB.find({});
-    return data;
-}
-
-
-const addMessage = async (room,message)=>{
-    console.log(room,message);
-    const MessageObj = mongoose.model(room, chatSchema);
-    const messageDB =  new MessageObj(message);
-    await messageDB.save(messageDB);
-    const data = await getMessages(room)
-    return data;
-}
-
-const removeCollection = async (colName)=>{
-    const dbModel = mongoose.model(colName, chatSchema);
-    await dbModel.collection.drop();
-    console.log(`${colName} collection removed!`);
-}
